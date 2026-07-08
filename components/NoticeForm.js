@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
+import toast from "react-hot-toast";
 
 export default function NoticeForm({
   initialData = null,
@@ -43,7 +44,9 @@ export default function NoticeForm({
       [name]: value,
     }));
 
-    // Remove error when user starts typing
+    
+
+    // Clear error while typing
     setErrors((prev) => ({
       ...prev,
       [name]: "",
@@ -99,14 +102,23 @@ export default function NoticeForm({
       const data = await res.json();
 
       if (!res.ok) {
-        alert(data.error || "Something went wrong");
+        toast.error(data.error || "Something went wrong");
         return;
       }
 
-      router.push("/");
+      toast.success(
+        isEditing
+          ? "Notice updated successfully!"
+          : "Notice created successfully!"
+      );
+
+      setTimeout(() => {
+        router.push("/");
+      }, 800);
+
     } catch (error) {
       console.error(error);
-      alert("Failed to save notice.");
+      toast.error("Failed to save notice.");
     } finally {
       setLoading(false);
     }
@@ -115,10 +127,11 @@ export default function NoticeForm({
   return (
     <form
       onSubmit={handleSubmit}
-      className="bg-white shadow rounded-xl p-6 space-y-5"
+      className="bg-white shadow-lg rounded-xl p-8 space-y-6"
     >
+      {/* Title */}
       <div>
-        <label className="font-medium">
+        <label className="font-semibold">
           Title *
         </label>
 
@@ -128,6 +141,7 @@ export default function NoticeForm({
           value={form.title}
           onChange={handleChange}
           className="w-full border rounded-lg p-3 mt-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          placeholder="Enter notice title"
         />
 
         {errors.title && (
@@ -137,8 +151,9 @@ export default function NoticeForm({
         )}
       </div>
 
+      {/* Body */}
       <div>
-        <label className="font-medium">
+        <label className="font-semibold">
           Body *
         </label>
 
@@ -147,6 +162,7 @@ export default function NoticeForm({
           name="body"
           value={form.body}
           onChange={handleChange}
+          placeholder="Write your notice here..."
           className="w-full border rounded-lg p-3 mt-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
 
@@ -157,10 +173,11 @@ export default function NoticeForm({
         )}
       </div>
 
+      {/* Category & Priority */}
       <div className="grid md:grid-cols-2 gap-5">
 
         <div>
-          <label className="font-medium">
+          <label className="font-semibold">
             Category
           </label>
 
@@ -177,7 +194,7 @@ export default function NoticeForm({
         </div>
 
         <div>
-          <label className="font-medium">
+          <label className="font-semibold">
             Priority
           </label>
 
@@ -194,8 +211,9 @@ export default function NoticeForm({
 
       </div>
 
+      {/* Publish Date */}
       <div>
-        <label className="font-medium">
+        <label className="font-semibold">
           Publish Date *
         </label>
 
@@ -214,13 +232,14 @@ export default function NoticeForm({
         )}
       </div>
 
+      {/* Image URL */}
       <div>
-        <label className="font-medium">
+        <label className="font-semibold">
           Image URL (Optional)
         </label>
 
         <input
-          type="text"
+          type="url"
           name="image"
           value={form.image}
           onChange={handleChange}
@@ -229,16 +248,22 @@ export default function NoticeForm({
         />
       </div>
 
+      {/* Submit Button */}
       <button
         type="submit"
         disabled={loading}
-        className="w-full bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 disabled:bg-gray-400 transition"
+        className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white py-3 rounded-lg font-semibold transition duration-200 flex justify-center items-center gap-2"
       >
-        {loading
-          ? "Saving..."
-          : isEditing
-          ? "Update Notice"
-          : "Create Notice"}
+        {loading ? (
+          <>
+            <span className="h-5 w-5 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+            Saving...
+          </>
+        ) : isEditing ? (
+          "Update Notice"
+        ) : (
+          "Create Notice"
+        )}
       </button>
     </form>
   );

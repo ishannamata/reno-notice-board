@@ -1,12 +1,18 @@
 import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
 import Navbar from "../components/Navbar";
 import NoticeCard from "../components/NoticeCard";
 import Loading from "../components/Loading";
 import EmptyState from "../components/EmptyState";
+import ConfirmDeleteModal from "../components/ConfirmDeleteModal";
 
 export default function Home() {
   const [notices, setNotices] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  const [selectedId, setSelectedId] = useState(null);
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const [deleteLoading, setDeleteLoading] = useState(false);
 
   async function fetchNotices() {
     try {
@@ -29,15 +35,18 @@ export default function Home() {
     fetchNotices();
   }, []);
 
-  async function handleDelete(id) {
-    const confirmed = window.confirm(
-      "Are you sure you want to delete this notice?"
-    );
+  function handleDeleteClick(id) {
+    setSelectedId(id);
+    setDeleteOpen(true);
+  }
 
-    if (!confirmed) return;
+  async function confirmDelete() {
+    if (!selectedId) return;
+
+    setDeleteLoading(true);
 
     try {
-      const response = await fetch(`/api/notices/${id}`, {
+      const response = await fetch(`/api/notices/${selectedId}`, {
         method: "DELETE",
       });
 
@@ -45,10 +54,18 @@ export default function Home() {
         throw new Error("Failed to delete notice");
       }
 
-      setNotices((prev) => prev.filter((notice) => notice.id !== id));
+      // Remove deleted notice from UI
+      setNotices((prev) =>
+        prev.filter((notice) => notice.id !== selectedId)
+      );
+
+      setDeleteOpen(false);
+      setSelectedId(null);
     } catch (error) {
       console.error(error);
-      alert("Failed to delete notice.");
+      toast.error("Failed to delete notice");
+    } finally {
+      setDeleteLoading(false);
     }
   }
 
@@ -67,12 +84,24 @@ export default function Home() {
               <NoticeCard
                 key={notice.id}
                 notice={notice}
-                onDelete={handleDelete}
+                onDeleteClick={handleDeleteClick}
               />
             ))}
           </div>
         )}
       </main>
+
+      <ConfirmDeleteModal
+        open={deleteOpen}
+        onClose={() => {
+          setDeleteOpen(false);
+          setSelectedId(null);
+
+          toast.success("Notice deleted successfully");
+        }}
+        onConfirm={confirmDelete}
+        loading={deleteLoading}
+      />
     </>
   );
 }
