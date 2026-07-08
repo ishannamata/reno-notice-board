@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 
 export default function NoticeForm({
@@ -8,37 +8,62 @@ export default function NoticeForm({
   const router = useRouter();
 
   const [form, setForm] = useState({
-    title: initialData?.title || "",
-    body: initialData?.body || "",
-    category: initialData?.category || "GENERAL",
-    priority: initialData?.priority || "NORMAL",
-    publishDate: initialData?.publishDate
-      ? initialData.publishDate.slice(0, 10)
-      : "",
-    image: initialData?.image || "",
+    title: "",
+    body: "",
+    category: "GENERAL",
+    priority: "NORMAL",
+    publishDate: "",
+    image: "",
   });
 
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
 
+  // Populate form when editing
+  useEffect(() => {
+    if (initialData) {
+      setForm({
+        title: initialData.title || "",
+        body: initialData.body || "",
+        category: initialData.category || "GENERAL",
+        priority: initialData.priority || "NORMAL",
+        publishDate: initialData.publishDate
+          ? initialData.publishDate.slice(0, 10)
+          : "",
+        image: initialData.image || "",
+      });
+    }
+  }, [initialData]);
+
   function handleChange(e) {
-    setForm({
-      ...form,
-      [e.target.name]: e.target.value,
-    });
+    const { name, value } = e.target;
+
+    setForm((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+
+    // Remove error when user starts typing
+    setErrors((prev) => ({
+      ...prev,
+      [name]: "",
+    }));
   }
 
   function validate() {
     const newErrors = {};
 
-    if (!form.title.trim())
+    if (!form.title.trim()) {
       newErrors.title = "Title is required";
+    }
 
-    if (!form.body.trim())
+    if (!form.body.trim()) {
       newErrors.body = "Body is required";
+    }
 
-    if (!form.publishDate)
+    if (!form.publishDate) {
       newErrors.publishDate = "Publish date is required";
+    }
 
     return newErrors;
   }
@@ -56,27 +81,34 @@ export default function NoticeForm({
     setErrors({});
     setLoading(true);
 
-    const url = isEditing
-      ? `/api/notices/${initialData.id}`
-      : "/api/notices";
+    try {
+      const url = isEditing
+        ? `/api/notices/${initialData.id}`
+        : "/api/notices";
 
-    const method = isEditing ? "PUT" : "POST";
+      const method = isEditing ? "PUT" : "POST";
 
-    const res = await fetch(url, {
-      method,
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(form),
-    });
+      const res = await fetch(url, {
+        method,
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(form),
+      });
 
-    setLoading(false);
-
-    if (res.ok) {
-      router.push("/");
-    } else {
       const data = await res.json();
-      alert(data.error || "Something went wrong");
+
+      if (!res.ok) {
+        alert(data.error || "Something went wrong");
+        return;
+      }
+
+      router.push("/");
+    } catch (error) {
+      console.error(error);
+      alert("Failed to save notice.");
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -95,7 +127,7 @@ export default function NoticeForm({
           name="title"
           value={form.title}
           onChange={handleChange}
-          className="w-full border rounded-lg p-3 mt-2"
+          className="w-full border rounded-lg p-3 mt-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
 
         {errors.title && (
@@ -111,11 +143,11 @@ export default function NoticeForm({
         </label>
 
         <textarea
-          rows="5"
+          rows={5}
           name="body"
           value={form.body}
           onChange={handleChange}
-          className="w-full border rounded-lg p-3 mt-2"
+          className="w-full border rounded-lg p-3 mt-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
 
         {errors.body && (
@@ -128,52 +160,51 @@ export default function NoticeForm({
       <div className="grid md:grid-cols-2 gap-5">
 
         <div>
-          <label>Category</label>
+          <label className="font-medium">
+            Category
+          </label>
 
           <select
             name="category"
             value={form.category}
             onChange={handleChange}
-            className="w-full border rounded-lg p-3 mt-2"
+            className="w-full border rounded-lg p-3 mt-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
             <option value="EXAM">Exam</option>
             <option value="EVENT">Event</option>
-            <option value="GENERAL">
-              General
-            </option>
+            <option value="GENERAL">General</option>
           </select>
         </div>
 
         <div>
-          <label>Priority</label>
+          <label className="font-medium">
+            Priority
+          </label>
 
           <select
             name="priority"
             value={form.priority}
             onChange={handleChange}
-            className="w-full border rounded-lg p-3 mt-2"
+            className="w-full border rounded-lg p-3 mt-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
-            <option value="NORMAL">
-              Normal
-            </option>
-
-            <option value="URGENT">
-              Urgent
-            </option>
+            <option value="NORMAL">Normal</option>
+            <option value="URGENT">Urgent</option>
           </select>
         </div>
 
       </div>
 
       <div>
-        <label>Publish Date *</label>
+        <label className="font-medium">
+          Publish Date *
+        </label>
 
         <input
           type="date"
           name="publishDate"
           value={form.publishDate}
           onChange={handleChange}
-          className="w-full border rounded-lg p-3 mt-2"
+          className="w-full border rounded-lg p-3 mt-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
 
         {errors.publishDate && (
@@ -184,7 +215,7 @@ export default function NoticeForm({
       </div>
 
       <div>
-        <label>
+        <label className="font-medium">
           Image URL (Optional)
         </label>
 
@@ -194,14 +225,14 @@ export default function NoticeForm({
           value={form.image}
           onChange={handleChange}
           placeholder="https://example.com/image.jpg"
-          className="w-full border rounded-lg p-3 mt-2"
+          className="w-full border rounded-lg p-3 mt-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
       </div>
 
       <button
         type="submit"
         disabled={loading}
-        className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 disabled:bg-gray-400"
+        className="w-full bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 disabled:bg-gray-400 transition"
       >
         {loading
           ? "Saving..."
