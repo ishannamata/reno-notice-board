@@ -10,7 +10,7 @@ datasource db {
 model Notice {
   id          Int      @id @default(autoincrement())
   title       String
-  body        String
+  body        String   @db.Text
   category    Category
   priority    Priority
   publishDate DateTime

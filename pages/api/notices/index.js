@@ -19,9 +19,11 @@ export default async function handler(req, res) {
             return res.status(200).json(notices);
         } catch (error) {
             console.error(error);
+
             return res.status(500).json({
                 success: false,
-                error: "Failed to fetch notices",
+                error: error.message,
+                stack: error.stack,
             });
         }
     }
