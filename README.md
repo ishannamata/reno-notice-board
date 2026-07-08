@@ -1,40 +1,100 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/pages/api-reference/create-next-app).
+# Notice Board
 
-## Getting Started
+A full-stack Notice Board application built as part of the Reno Platforms Web Development Assignment.
 
-First, run the development server:
+The application supports complete Create, Read, Update, and Delete (CRUD) operations for notices using Next.js Pages Router, Prisma ORM, MySQL (TiDB Cloud), and Tailwind CSS.
+
+## Features
+
+- Create, Read, Update and Delete notices
+- Responsive card-based layout
+- Server-side validation
+- RESTful API using Next.js API Routes
+- Delete confirmation dialog
+- Urgent notices displayed first using Prisma `orderBy`
+- Persistent hosted database using TiDB Cloud
+- Optional image URL support
+
+## Tech Stack
+
+- Next.js (Pages Router)
+- React
+- Tailwind CSS
+- Prisma ORM
+- MySQL (TiDB Cloud)
+- Vercel
+
+---
+
+## How to Run the Project Locally
+
+### 1. Clone the repository
+
+```bash
+git clone https://github.com/ishannamata/reno-notice-board.git
+```
+
+### 2. Navigate to the project
+
+```bash
+cd reno-notice-board
+```
+
+### 3. Install dependencies
+
+```bash
+npm install
+```
+
+### 4. Create a `.env` file
+
+```env
+DATABASE_URL="YOUR_DATABASE_CONNECTION_STRING"
+```
+
+### 5. Run Prisma migration
+
+```bash
+npx prisma migrate dev
+```
+
+### 6. Start the development server
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Visit:
 
-You can start editing the page by modifying `pages/index.js`. The page auto-updates as you edit the file.
+```
+http://localhost:3000
+```
 
-[API routes](https://nextjs.org/docs/pages/building-your-application/routing/api-routes) can be accessed on [http://localhost:3000/api/hello](http://localhost:3000/api/hello). This endpoint can be edited in `pages/api/hello.js`.
+---
 
-The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/pages/building-your-application/routing/api-routes) instead of React pages.
+## One Thing I Would Improve With More Time
 
-This project uses [`next/font`](https://nextjs.org/docs/pages/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Given more time, I would implement image uploads using cloud storage (such as Cloudinary) instead of image URLs. I would also add search, filtering, pagination, and user authentication to make the application more suitable for production use.
 
-## Learn More
+---
 
-To learn more about Next.js, take a look at the following resources:
+## AI Usage
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn-pages-router) - an interactive Next.js tutorial.
+AI tools were used to assist with:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- Planning the project structure
+- Reviewing and improving code quality
+- Debugging issues
+- Suggesting UI improvements
 
-## Deploy on Vercel
+All implementation, integration, testing, debugging, and final verification were completed manually.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+---
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/pages/building-your-application/deploying) for more details.
+## Live Demo
+
+**Vercel:** https://reno-notice-board-ruby.vercel.app/
+
+## Repository
+
+**GitHub:** https://github.com/ishannamata/reno-notice-board
